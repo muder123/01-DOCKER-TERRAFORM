@@ -256,4 +256,47 @@ services:
 
 ### SQL 
 
-Coming soon!
+<!-- Q3 -->
+select count(1)
+from green_taxi_trips
+where date(lpep_pickup_datetime) = '2019-09-18'
+	and date(lpep_dropoff_datetime) = '2019-09-18'
+
+<!-- Q4 -->
+select 
+	date(lpep_pickup_datetime),
+	max(lpep_dropoff_datetime - lpep_pickup_datetime)
+from green_taxi_trips
+group by 1
+order by 2 desc
+
+<!-- Q5 -->
+select
+	z."Borough",
+	sum(gt."total_amount") as total_amount_by_borough
+from green_taxi_trips as gt
+inner join taxi_zone_lookup as z
+	on gt."PULocationID" = z."LocationID"
+where date(gt.lpep_pickup_datetime) = '2019-09-18'
+group by 1
+having sum(gt."total_amount") > 50000
+
+<!-- Q6 -->
+with cte as
+(select
+	gt."DOLocationID",
+	max(gt."tip_amount")
+from green_taxi_trips as gt
+inner join taxi_zone_lookup as z
+	on gt."PULocationID" = z."LocationID"
+where date(gt.lpep_pickup_datetime) >= '2019-09-01'
+	and date(gt.lpep_pickup_datetime) <= '2019-09-30'
+	and z."Zone" = 'Astoria'
+group by 1
+order by 2 desc
+limit 1)
+
+select z."Zone"
+from cte
+inner join taxi_zone_lookup as z
+	on cte."DOLocationID" = z."LocationID"
